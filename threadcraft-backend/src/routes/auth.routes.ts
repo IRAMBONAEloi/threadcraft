@@ -15,8 +15,9 @@ router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.get('/me',authenticate, authController.getMe);
 router.post('/2fa/setup', authenticate, authController.setup2FA);
-router.post('/2fa/verify',authController.verify2FA);
+router.post('/2fa/verify',authController.verifyEmailOtp);
 router.post('/logout', authenticate, authController.logout);
+router.post('/verify-email-otp', authController.verifyEmailOtp);
 
 router.get(
     '/google',

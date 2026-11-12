@@ -8,6 +8,7 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showVerifyMessage, setShowVerifyMessage] = useState(false);
 
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -17,7 +18,11 @@ export default function Register() {
     setError('');
     
     try {
-      await register({ firstName, lastName, email, password });
+      const result = await register({ firstName, lastName, email, password });
+      if (result.user && !result.token) {
+        setShowVerifyMessage(true);
+        return;
+      }
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Registration failed');
@@ -27,6 +32,23 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg p-4">
       <div className="w-full max-w-md bg-card p-8 rounded-2xl border border-gray-800">
+         {showVerifyMessage ? (
+          <div className="text-center space-y-4">
+            <div className="text-5xl">📧</div>
+            <h2 className="font-sora font-bold text-2xl text-white">Check Your Email</h2>
+            <p className="text-text-dim text-sm">
+              We sent a verification link to <strong className="text-white">{email}</strong>. 
+              Click the link to activate your account.
+            </p>
+            <p className="text-text-faint text-xs">
+              Didn't receive it? Check your spam folder.
+            </p>
+            <Link to="/login" className="block text-violet hover:underline text-sm mt-4">
+              Back to Login
+            </Link>
+          </div>
+         ): (
+            <>
         <h2 className="text-2xl font-sora font-bold text-center mb-6">
           Create an Account
         </h2>
@@ -95,6 +117,8 @@ export default function Register() {
             Login
           </Link>
         </p>
+        </>
+         )}
       </div>
     </div>
   );

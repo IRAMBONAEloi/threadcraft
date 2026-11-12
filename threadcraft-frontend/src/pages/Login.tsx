@@ -12,7 +12,7 @@ export default function Login() {
   const [userId, setUserId] = useState('');
   const [code, setCode] = useState('');
 
-  const { login, verify2FA } = useAuth();
+  const { login, verifyEmailOtp } = useAuth();
   const navigate = useNavigate();
 
   async function handleLogin(e: React.FormEvent) {
@@ -40,7 +40,7 @@ export default function Login() {
     setError('');
     
     try {
-     const result= await verify2FA(userId, code);
+     const result= await verifyEmailOtp(userId, code);
      if (result.user.role === 'OWNER'){
         navigate('/admin');
      }else{
@@ -116,7 +116,7 @@ export default function Login() {
         ) : (
           <form onSubmit={handleVerify2FA} className="space-y-4">
             <p className="text-sm text-text-dim text-center mb-4">
-              Enter the 6-digit code from your authenticator app.
+              We sent a 6-digit code to your email. Enter it below.
             </p>
             <div>
               <input

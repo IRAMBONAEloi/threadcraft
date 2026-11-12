@@ -12,7 +12,7 @@ export default function Navbar() {
 
 const { itemCount } = useCart();
 const [isCartOpen, setIsCartOpen] = useState(false);
-const {isAuthenticated, user} = useAuth();
+const {isAuthenticated, user, logout} = useAuth();
 
 
   return (
@@ -37,12 +37,24 @@ const {isAuthenticated, user} = useAuth();
         {/* Actions */}
     <div className="flex items-center gap-6">
     {isAuthenticated ? (
-  <Link 
-    to={user?.role === 'OWNER' ? '/admin' : '/account'} 
-    className="text-sm font-mono text-violet hover:text-white transition-colors"
-  >
-    {user?.role === 'OWNER' ? 'Dashboard' : 'My Account'}
-  </Link>
+  
+  <>
+    <Link 
+      to={user?.role === 'OWNER' ? '/admin' : '/account'} 
+      className="text-sm font-mono text-violet hover:text-white transition-colors"
+    >
+      {user?.role === 'OWNER' ? 'Dashboard' : 'My Account'}
+    </Link>
+    <button 
+      onClick={async () => {
+        await logout();
+        window.location.href = '/login';
+      }}
+      className="text-sm font-mono text-coral hover:text-white transition-colors"
+    >
+      Sign Out
+    </button>
+  </>
 ) : (
   <Link 
     to="/login" 
@@ -50,8 +62,8 @@ const {isAuthenticated, user} = useAuth();
   >
     Sign In
   </Link>
+  
 )}
-
           <button 
           onClick={() =>  setIsCartOpen(true)}
           className="bg-white text-bg px-5 py-2 rounded-full font-mono text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">

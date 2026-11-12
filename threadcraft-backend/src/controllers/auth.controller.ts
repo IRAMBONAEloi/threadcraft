@@ -182,7 +182,7 @@ export async function setup2FA(
 }
 
 
-export async function verify2FA(
+export async function verifyEmailOtp(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -194,7 +194,7 @@ export async function verify2FA(
             throw new BadRequestError('userId and code are required');
         }
         const sessionId = req.headers['x-session-id'] as string | undefined;
-        const result = await authService.verify2FALogin(userId, code, sessionId);
+        const result = await authService.verifyEmailOtp(userId, code, sessionId);
 
         res.status(200).json({
             success: true,

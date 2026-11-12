@@ -16,9 +16,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<any>;
-  verify2FA: (userId: string, code: string) => Promise<any>;
+  verifyEmailOtp: (userId: string, code: string) => Promise<any>;
   register: (data: any) => Promise<any>;
   logout: () => Promise<void>;
+  loginWithToken: (token: string) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -53,6 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (result.requires2FA) {
       return result;
     }
+
+    if(!result.token) {
+      return result;
+    }
     
     // Otherwise, save the token and user
     localStorage.setItem('token', result.token);
@@ -63,14 +68,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return result;
   }
 
-  async function verify2FA(userId: string, code: string) {
-    const result = await authApi.verify2FA(userId, code);
+
+  async function verifyEmailOtp(userId: string, code: string){
+    const result = await authApi.verifyEmailOtp(userId, code);
     localStorage.setItem('token', result.token);
     localStorage.setItem('user', JSON.stringify(result.user));
     setToken(result.token);
     setUser(result.user);
     return result;
   }
+
+  /*async function verify2FA(userId: string, code: string) {
+    const result = await authApi.verify2FA(userId, code);
+    localStorage.setItem('token', result.token);
+    localStorage.setItem('user', JSON.stringify(result.user));
+    setToken(result.token);
+    setUser(result.user);
+    return result;
+  }*/
 
   async function register(data: any) {
     const result = await authApi.register(data);
@@ -91,6 +106,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
     }
   }
+  
+  async function loginWithToken(token: string) {
+  localStorage.setItem('token', token);
+  try {
+    const user = await authApi.getMe();
+    localStorage.setItem('user', JSON.stringify(user));
+    setToken(token);
+    setUser(user);
+    return (user);
+  } catch (error) {
+    localStorage.removeItem('token');
+    throw error;
+  }
+}
 
   return (
     <AuthContext.Provider value={{
@@ -99,13 +128,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: !!user,
       isLoading,
       login,
-      verify2FA,
+      verifyEmailOtp,
       register,
       logout,
+      loginWithToken,
     }}>
       {children}
     </AuthContext.Provider>
   );
+
+  
 }
 
 export function useAuth() {

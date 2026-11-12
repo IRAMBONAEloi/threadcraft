@@ -25,4 +25,12 @@ export const authApi = {
         const response = await apiClient.get('/auth/me');
         return response.data.data;
         },
+    verifyEmail: async (token: string) => {
+        const response = await apiClient.get(`/auth/verify-email?token=${token}`);
+        return response.data.data;
+    },
+    verifyEmailOtp: async (userId: string, code: string) => {
+        const response = await apiClient.post(`/auth/verify-email-otp`,{userId, code });
+        return response.data.data;
+    },
 };

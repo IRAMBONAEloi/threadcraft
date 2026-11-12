@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { authApi } from '../api/auth';
+import { useAuth } from '../context/AuthContext';
 
 export default function AuthCallback() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { loginWithToken } = useAuth();
 
   useEffect(() => {
     async function handleCallback() {
@@ -15,21 +16,23 @@ export default function AuthCallback() {
         return;
       }
 
-      // Save token to storage
-      localStorage.setItem('token', token);
-
-      // Fetch user profile to confirm the token works
       try {
-        const user = await authApi.getMe();
-        localStorage.setItem('user', JSON.stringify(user));
-        navigate('/');
+        const user = await loginWithToken(token);
+
+
+        if (user.role === 'OWNER') {
+            navigate('/admin');
+        }else {
+             navigate('/account');
+        }
+       
       } catch (error) {
         navigate('/login?error=invalid_token');
       }
     }
 
     handleCallback();
-  }, [navigate, searchParams]);
+  }, [navigate, searchParams, loginWithToken]);
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center">
